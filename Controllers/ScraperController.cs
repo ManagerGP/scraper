@@ -12,7 +12,7 @@ namespace ArticoliWebService.AddControllers{
 /// </summary>
     [ApiController]
     [Route("scraper")]
-    public class BahrainGpController: ControllerBase
+    public class ScraperController: ControllerBase
     {      
         /// <summary>
         /// This method allows you to extrapolet information about riders tables
