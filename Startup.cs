@@ -28,6 +28,7 @@ namespace Scraper
             }
 
             app.UseRouting();
+            app.UseStaticFiles();
 
             app.UseEndpoints(endpoints =>
             {
