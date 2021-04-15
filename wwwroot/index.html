@@ -5,14 +5,23 @@
   </head>
   <body>
     <main class="container mt-4">
-    <form action="scraper/table" method="POST" target="json">
+    <form class="needs-validation" action="scraper/table" method="POST" target="json" novalidate>
       <div class="mb-3">
-        <label for="idUrl" class="form-label">URL :</label>
-        <input type="text" class="form-control" id="idUrl" placeholder="www.example.com" name="url"/>
+        <label for="url" class="form-label">URL :</label>
+        <input type="url" class="form-control" placeholder="www.example.com" name="url" required />
+        <div class="invalid-feedback">
+          Invalid url. Please enter a correct address.
+          (E.g. http://www. .. or https://www. ..)
+        </div>
+       <style>
+         .container {
+          background-image: url("background.jpg");
+          }
+       </style> 
       </div>
       <div class="mb-3">
         <label for="idXpath" class="form-label">XPATH :</label>
-        <input type="text" class="form-control" id="idXpath" placeholder="//table[@class='resultsarchive-table']" name="xpath"/>
+        <input type="text" class="form-control" id="idXpath" placeholder="//table[@class='resultsarchive-table']" name="xpath" required />
       </div>
       <div class="mb-3 d-grid gap-2 d-md-flex justify-content-md-end">
         <button type="submit" class="btn btn-primary mb-3">Create Json</button>
@@ -21,6 +30,28 @@
     <div class="mb-3">
       <iframe class="form-control h-50 d-inline-block" name="json"></iframe>
     </div></main>
+    <script>
+      // Example starter JavaScript for disabling form submissions if there are invalid fields
+      (function () {
+        'use strict'
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+          .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+              if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+              }
+
+              form.classList.add('was-validated')
+            }, false)
+          })
+      })()
+    </script>
   </body>
 </html>
     
