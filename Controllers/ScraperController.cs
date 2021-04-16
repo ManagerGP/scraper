@@ -5,8 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
+using System.ComponentModel.DataAnnotations;
+using System.Xml.XPath;
+using Scraper.Model;
+using Newtonsoft.Json;
 
-namespace ArticoliWebService.AddControllers{
+namespace Scraper.Controllers {
 /// <summary>
 /// This controller allows you to extrapolate information on the MTGP, FE and F1 
 /// </summary>
@@ -21,19 +25,19 @@ namespace ArticoliWebService.AddControllers{
         /// 
         /// result = String with JsonArray table data
         /// </summary>
-        /// <param name="url"></param>
-        /// <param name="xpath"></param>
+        /// <param name="settings"></param>
         /// <returns>result</returns>
         [HttpPost("table")]
-         public IActionResult GetTableInformation([FromForm] string url, [FromForm] string xpath) {
+         public IActionResult GetTableInformation([FromForm] TableScraperSettings settings) {
             
-            HtmlDocument document = ShareHtmlDocument(url); 
-            var tableElem = document.DocumentNode.SelectSingleNode(xpath);
+            var req = HttpContext.Request;
+
+            HtmlDocument document = ShareHtmlDocument(settings.Url); 
+            var tableElem = document.DocumentNode.SelectSingleNode(settings.XPath);
             List<string> header = GetHeaderTable(tableElem);
             List<List<string>> body= GetBodyTable(tableElem);
-            JArray json = BuildJsonTable(header,body); 
-            string response = json.ToString();                 
-            return Ok(response);
+            JArray json = BuildJsonTable(header,body, settings.ColumnsMask);  
+            return Ok(json.ToString());
 
         }
 
@@ -66,15 +70,25 @@ namespace ArticoliWebService.AddControllers{
         /// <param name="header"></param>
         /// <param name="body"></param>
         /// <returns>json</returns>
-        private JArray BuildJsonTable(List<string> headerTable , List<List<string>> bodyTable) {
+        private JArray BuildJsonTable(List<string> headerTable , List<List<string>> bodyTable, Dictionary<int, ColumnMask> masks) {
             JArray json = new JArray();
             foreach (var row in bodyTable)
             {
                 JObject elementRow = new JObject();
-                int i = 0;
-                foreach (var cell in row)
+                if(masks == null || masks.Count() == 0)
                 {
-                    elementRow.Add(headerTable[i++], new JValue(Regex.Replace(cell, @"\n\s+", " ")));       
+                    for (int i = 0; i < row.Count; i++)
+                    {
+                        elementRow.Add(headerTable[i], new JValue(Regex.Replace(row[i], @"\n\s+", " ")));
+                    }
+                } else {
+                    for (int i = 0; i < row.Count; i++)
+                    {
+                        if(masks.ContainsKey(i) && !masks[i].Exclude )
+                        {
+                            elementRow.Add(masks[i].Name, new JValue(Regex.Replace(row[i], masks[i].MatchingPattern, masks[i].ReplacementPattern))); 
+                        }                    
+                    }
                 }
                 json.Add(elementRow);
             }
