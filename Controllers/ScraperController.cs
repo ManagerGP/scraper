@@ -19,12 +19,13 @@ namespace ArticoliWebService.AddControllers
         /// </summary>
         /// <param name="url"></param>
         /// <param name="xpath"></param>
+        /// <param name="acceptedColumns"></param>
         /// <returns>result</returns>
         [HttpPost("table")]
-        public IActionResult GetTableInformation([FromForm] string url, [FromForm] string xpath)
+        public IActionResult GetTableInformation([FromForm] string url, [FromForm] string xpath, [FromForm] string acceptedColumns)
         {
             ScraperObject result = null;
-            result = ScraperService.PerformScraping(url, xpath);
+            result = ScraperService.PerformScraping(url, xpath, acceptedColumns);
 
             return Ok(result);
         }

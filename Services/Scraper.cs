@@ -12,9 +12,11 @@ namespace BahrainGp.Services
 
     public static class ScraperService
     {
-        public static ScraperObject PerformScraping(string url, string xpath)
+        private static int[] acceptedColumns = { };
+        public static ScraperObject PerformScraping(string url, string xpath, string acceptedColumns)
         {
             string result = string.Empty;
+            ScraperService.acceptedColumns = String.IsNullOrEmpty(acceptedColumns) ? ScraperService.acceptedColumns : acceptedColumns.Split(";").Select(Int32.Parse).ToArray();
             result = ShareHtmlDocument(url);
             HtmlDocument document = new HtmlDocument();
             document.LoadHtml(result);
@@ -102,10 +104,13 @@ namespace BahrainGp.Services
         private static List<string> GetHeaderTable(HtmlNode tableElem)
         {
             int z = 1;
+            int[] x = { 1, 3, 5 };
             List<string> headerTable = tableElem.Descendants("tr")
                 .Take(1)
                 .Where(tr => tr.Elements("th").Count() > 1)
-                .SelectMany(tr => tr.Elements("th").Select(td => td.InnerText.Trim()).ToList())
+                .SelectMany(tr => tr.Elements("th").Select((td, index) =>(td.InnerText.Trim(), index))
+                .Where(element=> ScraperService.acceptedColumns.Count() > 0 ? ScraperService.acceptedColumns.Contains(element.index) : true)
+                .Select(element=>element.Item1).ToList())
                 .ToList().Select(elem => elem == string.Empty ? (z++).ToString() : elem).ToList();
 
             return headerTable;
@@ -118,12 +123,16 @@ namespace BahrainGp.Services
         /// <returns>bodyTable</returns>
         private static List<List<string>> GetBodyTable(HtmlNode tableElem)
         {
+            int[] x = { 1, 3, 5 };
             List<List<string>> bodyTable = tableElem
                         .Descendants("tr")
                         .Skip(1)
                         .Where(tr => tr.Elements("td").Count() > 1)
-                        .Select(tr => tr.Elements("td").Select(td => td.InnerText.Trim()).ToList())
+                        .Select(tr => tr.Elements("td").Select((td, index)=> (td.InnerText.Trim(), index))
+                        .Where(element => ScraperService.acceptedColumns.Count()>0 ? ScraperService.acceptedColumns.Contains(element.index): true)
+                        .Select(element => element.Item1).ToList())
                         .ToList();
+
             return bodyTable;
         }
     }
