@@ -178,6 +178,11 @@ namespace BahrainGp.Services
             Key = key;
             Value = value;
         }
+
+        public Pair()
+        {
+
+        }
     }
 
 }
