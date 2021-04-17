@@ -23,7 +23,7 @@ namespace ArticoliWebService.AddControllers
         [HttpPost("table")]
         public IActionResult GetTableInformation([FromForm] string url, [FromForm] string xpath)
         {
-            string result = "";
+            ScraperObject result = null;
             result = ScraperService.PerformScraping(url, xpath);
 
             return Ok(result);
